@@ -2,12 +2,18 @@
 #include <termios.h>
 #include <unistd.h>
 
-void enableRawMode() {
-    struct termios raw;
+struct termios orig_termios;
 
-    tcgetattr(STDIN_FILENO, &raw);
+void disableRawMode(void) {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
 
-    raw.c_lflag &= ~(ECHO);
+void enableRawMode(void) {
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    atexit(disableRawMode);
+
+    struct termios raw = orig_termios;
+    raw.c_lflag &= ~(ECHO | ICANON);
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
@@ -22,7 +28,7 @@ void enableRawMode() {
 // 两种模式通常通过修改 termios 结构体的标志位来切换。
 
 
-int main() {
+int main(void) {
     enableRawMode();
     char c;
     while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');

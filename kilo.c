@@ -1,7 +1,8 @@
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 
-void enableRawMode(void) {
+void enableRawMode() {
     struct termios raw;
 
     tcgetattr(STDIN_FILENO, &raw);
@@ -21,7 +22,7 @@ void enableRawMode(void) {
 // 两种模式通常通过修改 termios 结构体的标志位来切换。
 
 
-int main(void) {
+int main() {
     enableRawMode();
     char c;
     while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
